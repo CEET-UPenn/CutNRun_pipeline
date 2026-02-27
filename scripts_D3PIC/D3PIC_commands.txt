@@ -1,0 +1,32 @@
+cp -r scripts_D3PIC/ scripts_pod
+mv scripts_pod/D3PIC_commands.txt scripts_pod/pod_commands.txt 
+sed -i s'/D3PIC/pod/g' scripts_pod/*
+sed -i s'/pod/Dxcond/g' scripts_Dxcond/Dxcond_commands.txt
+sed -i s'/CutandRun-Library-IgG/CutandRun-Library-a/g' scripts_pod/Script_*
+sed -i s'/CutandRun-Library-Histone/CutandRun-Library-b/g' scripts_pod/Script_*
+sed -i s'/CutandRun-Library-geneH/CutandRun-Library-c/g' scripts_pod/Script_*
+sed -i s'/CutandRun-Library-geneL/CutandRun-Library-d/g' scripts_pod/Script_*
+
+#run scripts:
+bash scripts_D3PIC/Script_02_symlink-fastq.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_03_fastQC.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_04_trimming.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_06_bowtie2_mapping.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_07_filter-sort-bam.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_08_bam-to-BEDPE-BED-bedGraph.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_09_normalization_SFRC.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_09_normalization_SRPMC.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_10_insert-size-analysis.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_11_peak-calling_MACS2.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_11_peak-calling_MACS3.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_11_peak-calling_SEACR.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_12_make-peak-bed.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_13_filter-peaks.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_14_cat-merge-peak-bed_MACS.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_14_cat-merge-peak-bed_SEACR.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_15_correlation_plotCorrelation.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_15_correlation_plotPCA.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_16_venn-diagram_methods.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_16_venn-diagram_replicates.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_17_plotHeatmap_focused.sh
+bsub -o D3PIC_script_submit_log.txt bash scripts_D3PIC/Script_17_plotHeatmap_whole.sh

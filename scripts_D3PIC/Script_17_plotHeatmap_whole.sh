@@ -1,0 +1,143 @@
+#!/bin/bash #This clarify the type of this script as bash script. It does not required actual operation of the bash script.
+
+##########
+# Script_17_create heatmap and metaplot for the focused peaks 
+# H3k9me3 : CutandRun-Library-41
+# Uhrf2: CutandRun-Library-38
+# L3mbtl3: CutandRun-Library-39
+##########
+# create deeptools output directory
+mkdir -p /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/deeptools_computeMatrix
+mkdir -p /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/deeptools_plotHeatmap
+mkdir -p /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/log
+mkdir -p /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/log/plotHeatmap
+
+# Define log file name and directory
+log_dir=/project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/log/plotHeatmap
+log_file="log_plotHeatmap_whole.txt"
+
+# for-loop to create Heatmap and average plot
+(
+    cd /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/bigWig
+
+    for f in *.hg38.canonical.clean.fragments.SFRC.bw; do
+
+        # Extract base filename without extension
+        base=${f%%.hg38.canonical.clean.fragments.SFRC.bw}
+
+        # Define directories
+        computeMatrix_dir=/project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/deeptools_computeMatrix
+        plotHeatmap_dir=/project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/deeptools_plotHeatmap
+
+        # MACS3, w/ IgG
+        computeMatrix reference-point \
+            -S CutandRun-Library-40.hg38.canonical.clean.fragments.SFRC.bw \
+            ${base}.hg38.canonical.clean.fragments.SFRC.bw \
+            -R /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/peak-bed_MACS3/${base}.hg38.canonical.clean.fragments_w-IgG_whole.bed \
+            -o $computeMatrix_dir/${base}.hg38.canonical.clean.fragments_w-IgG_MACS3_bw-SFRC.gz \
+            -a 3000 -b 3000 -bs 10 --referencePoint center --missingDataAsZero --skipZeros -p max/2 \
+            --samplesLabel IgG ${base}
+
+        plotHeatmap -m $computeMatrix_dir/${base}.hg38.canonical.clean.fragments_w-IgG_MACS3_bw-SFRC.gz \
+            -o $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments_w-IgG_MACS3_bw-SFRC.pdf \
+            --outFileSortedRegions $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments_w-IgG_MACS3_bw-SFRC.bed \
+            --missingDataColor 1 --colorMap Reds -min 0 --yMin 0 --heatmapHeight 14 --refPointLabel "Center" --plotTitle "${base} w/ IgG MACS3, SFRC"
+
+        computeMatrix reference-point \
+            -S CutandRun-Library-40.hg38.canonical.clean.fragments.SRPMC.bw \
+            ${base}.hg38.canonical.clean.fragments.SRPMC.bw \
+            -R /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/peak-bed_MACS3/${base}.hg38.canonical.clean.fragments_w-IgG_whole.bed \
+            -o $computeMatrix_dir/${base}.hg38.canonical.clean.fragments_w-IgG_MACS3_bw-SRPMC.gz \
+            -a 3000 -b 3000 -bs 10 --referencePoint center --missingDataAsZero --skipZeros -p max/2 \
+            --samplesLabel IgG ${base}
+
+        plotHeatmap -m $computeMatrix_dir/${base}.hg38.canonical.clean.fragments_w-IgG_MACS3_bw-SRPMC.gz \
+            -o $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments_w-IgG_MACS3_bw-SRPMC.pdf \
+            --outFileSortedRegions $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments_w-IgG_MACS3_bw-SRPMC.bed \
+            --missingDataColor 1 --colorMap Reds -min 0 --yMin 0 --heatmapHeight 14 --refPointLabel "Center" --plotTitle "${base} w/ IgG MACS3, SRPMC"
+
+
+        # MACS3, w/o IgG
+        computeMatrix reference-point \
+            -S CutandRun-Library-40.hg38.canonical.clean.fragments.SFRC.bw \
+            ${base}.hg38.canonical.clean.fragments.SFRC.bw \
+            -R /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/peak-bed-filtered_MACS3/${base}.hg38.canonical.clean.fragments_wo-IgG_whole.bed \
+            -o $computeMatrix_dir/${base}.hg38.canonical.clean.fragments_wo-IgG_MACS3_bw-SFRC.gz \
+            -a 3000 -b 3000 -bs 10 --referencePoint center --missingDataAsZero --skipZeros -p max/2 \
+            --samplesLabel IgG ${base}
+
+        plotHeatmap -m $computeMatrix_dir/${base}.hg38.canonical.clean.fragments_wo-IgG_MACS3_bw-SFRC.gz \
+            -o $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments_wo-IgG_MACS3_bw-SFRC.pdf \
+            --outFileSortedRegions $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments_wo-IgG_MACS3_bw-SFRC.bed \
+            --missingDataColor 1 --colorMap Reds -min 0 --yMin 0 --heatmapHeight 14 --refPointLabel "Center" --plotTitle "${base} w/ IgG MACS3, SFRC"
+
+        computeMatrix reference-point \
+            -S CutandRun-Library-40.hg38.canonical.clean.fragments.SRPMC.bw \
+            ${base}.hg38.canonical.clean.fragments.SRPMC.bw \
+            -R /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/peak-bed-filtered_MACS3/${base}.hg38.canonical.clean.fragments_wo-IgG_whole.bed \
+            -o $computeMatrix_dir/${base}.hg38.canonical.clean.fragments_wo-IgG_MACS3_bw-SRPMC.gz \
+            -a 3000 -b 3000 -bs 10 --referencePoint center --missingDataAsZero --skipZeros -p max/2 \
+            --samplesLabel IgG ${base}
+
+        plotHeatmap -m $computeMatrix_dir/${base}.hg38.canonical.clean.fragments_wo-IgG_MACS3_bw-SRPMC.gz \
+            -o $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments_wo-IgG_MACS3_bw-SRPMC.pdf \
+            --outFileSortedRegions $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments_wo-IgG_MACS3_bw-SRPMC.bed \
+            --missingDataColor 1 --colorMap Reds -min 0 --yMin 0 --heatmapHeight 14 --refPointLabel "Center" --plotTitle "${base} w/ IgG MACS3, SRPMC"
+
+
+        # SEACR, w/ IgG
+        computeMatrix reference-point \
+            -S CutandRun-Library-40.hg38.canonical.clean.fragments.SFRC.bw \
+            ${base}.hg38.canonical.clean.fragments.SFRC.bw \
+            -R /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/peak-bed_SEACR/${base}.hg38.canonical.clean.fragments.SFRC_SEACR-w-IgG.stringent_whole.bed \
+            -o $computeMatrix_dir/${base}.hg38.canonical.clean.fragments.SFRC_SEACR-w-IgG.stringent_whole_bw-SFRC.gz \
+            -a 3000 -b 3000 -bs 10 --referencePoint center --missingDataAsZero --skipZeros -p max/2 \
+            --samplesLabel IgG ${base}
+
+        plotHeatmap -m $computeMatrix_dir/${base}.hg38.canonical.clean.fragments.SFRC_SEACR-w-IgG.stringent_whole_bw-SFRC.gz \
+            -o $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments.SFRC_SEACR-w-IgG.stringent_whole_bw-SFRC.pdf \
+            --outFileSortedRegions $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments.SFRC_SEACR-w-IgG.stringent_whole_bw-SFRC.bed \
+            --missingDataColor 1 --colorMap Reds -min 0 --yMin 0 --heatmapHeight 14 --refPointLabel "Center" --plotTitle "${base} w/ IgG SEACR, SFRC, stringent"
+
+        computeMatrix reference-point \
+            -S CutandRun-Library-40.hg38.canonical.clean.fragments.SRPMC.bw \
+            ${base}.hg38.canonical.clean.fragments.SRPMC.bw \
+            -R /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/peak-bed_SEACR/${base}.hg38.canonical.clean.fragments.SRPMC_SEACR-w-IgG.stringent_whole.bed \
+            -o $computeMatrix_dir/${base}.hg38.canonical.clean.fragments.SRPMC_SEACR-w-IgG.stringent_whole_bw-SRPMC.gz \
+            -a 3000 -b 3000 -bs 10 --referencePoint center --missingDataAsZero --skipZeros -p max/2 \
+            --samplesLabel IgG ${base}
+
+        plotHeatmap -m $computeMatrix_dir/${base}.hg38.canonical.clean.fragments.SRPMC_SEACR-w-IgG.stringent_whole_bw-SRPMC.gz \
+            -o $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments.SRPMC_SEACR-w-IgG.stringent_whole_bw-SRPMC.pdf \
+            --outFileSortedRegions $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments.SRPMC_SEACR-w-IgG.stringent_whole_bw-SRPMC.bed \
+            --missingDataColor 1 --colorMap Reds -min 0 --yMin 0 --heatmapHeight 14 --refPointLabel "Center" --plotTitle "${base} w/ IgG SEACR, SRPMC, stringent"
+
+
+        # SEACR, w/o IgG
+        computeMatrix reference-point \
+            -S CutandRun-Library-40.hg38.canonical.clean.fragments.SFRC.bw \
+            ${base}.hg38.canonical.clean.fragments.SFRC.bw \
+            -R /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/peak-bed-filtered_SEACR/${base}.hg38.canonical.clean.fragments.SFRC_SEACR-wo-IgG.stringent_whole.bed \
+            -o $computeMatrix_dir/${base}.hg38.canonical.clean.fragments.SFRC_SEACR-wo-IgG.stringent_whole_bw-SFRC.gz \
+            -a 3000 -b 3000 -bs 10 --referencePoint center --missingDataAsZero --skipZeros -p max/2 \
+            --samplesLabel IgG ${base}
+
+        plotHeatmap -m $computeMatrix_dir/${base}.hg38.canonical.clean.fragments.SFRC_SEACR-wo-IgG.stringent_whole_bw-SFRC.gz \
+            -o $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments.SFRC_SEACR-wo-IgG.stringent_whole_bw-SFRC.pdf \
+            --outFileSortedRegions $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments.SFRC_SEACR-wo-IgG.stringent_whole_bw-SFRC.bed \
+            --missingDataColor 1 --colorMap Reds -min 0 --yMin 0 --heatmapHeight 14 --refPointLabel "Center" --plotTitle "${base} w/ IgG SEACR, SFRC, stringent"
+
+        computeMatrix reference-point \
+            -S CutandRun-Library-40.hg38.canonical.clean.fragments.SRPMC.bw \
+            ${base}.hg38.canonical.clean.fragments.SRPMC.bw \
+            -R /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/peak-bed-filtered_SEACR/${base}.hg38.canonical.clean.fragments.SRPMC_SEACR-wo-IgG.stringent_whole.bed \
+            -o $computeMatrix_dir/${base}.hg38.canonical.clean.fragments.SRPMC_SEACR-wo-IgG.stringent_whole_bw-SRPMC.gz \
+            -a 3000 -b 3000 -bs 10 --referencePoint center --missingDataAsZero --skipZeros -p max/2 \
+            --samplesLabel IgG ${base}
+
+        plotHeatmap -m $computeMatrix_dir/${base}.hg38.canonical.clean.fragments.SRPMC_SEACR-wo-IgG.stringent_whole_bw-SRPMC.gz \
+            -o $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments.SRPMC_SEACR-wo-IgG.stringent_whole_bw-SRPMC.pdf \
+            --outFileSortedRegions $plotHeatmap_dir/${base}.hg38.canonical.clean.fragments.SRPMC_SEACR-wo-IgG.stringent_whole_bw-SRPMC.bed \
+            --missingDataColor 1 --colorMap Reds -min 0 --yMin 0 --heatmapHeight 14 --refPointLabel "Center" --plotTitle "${base} w/ IgG SEACR, SRPMC, stringent"
+    done
+) 2>$log_dir/$log_file

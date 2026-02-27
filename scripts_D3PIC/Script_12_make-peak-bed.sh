@@ -1,0 +1,103 @@
+#!/bin/bash #This clarify the type of this script as bash script. It does not required actual operation of the bash script.
+
+##########
+# Script_12_Peak bed file generation
+# This script includes two parts: MACS and SEACR. Therefore you may need to check "Set files and directories" for MACS and SEACR independently.
+##########
+##########
+# SEACR
+# whole: take column 1, 2, 3, 6
+# focused: split column 6
+##########
+# Make directories for output and log files
+    mkdir -p /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/peak-bed_SEACR
+    mkdir -p /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/log
+    mkdir -p /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/log/peak-bed
+
+# Set log directory and output file
+    log_dir=/project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/log/peak-bed
+    log_file_SEACR="log_make-peak-bed_SEACR.txt"
+    log_file_MACS="log_make-peak-bed_MACS.txt"
+
+# Set current working directory
+    cd /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/SEACR
+
+
+# for-loop to create peak bed files
+(    for f in *.bed; do
+
+        # Extract base filename without extension
+        base=${f%%.bed}
+
+        # Set files and directories for SEACR
+        input_dir_SEACR=/project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/SEACR
+        input_SEACR="${base}.bed"
+        output_dir_SEACR=/project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/peak-bed_SEACR
+        output_SEACR_whole="${base}_whole.bed"
+        output_SEACR_focused="${base}_focused.bed"
+
+        # Generate SEACR peak bed files
+            # for intervene and correlation analysis
+            awk '{print $1,$2,$3,$6}' OFS='\t' \
+                $input_dir_SEACR/$input_SEACR \
+            > $output_dir_SEACR/$output_SEACR_whole
+
+            # for heatmap and average plot
+            awk '{split($6,a,":"); print a[1],a[2],$6}' OFS='\t' \
+                $input_dir_SEACR/$input_SEACR | \
+            awk '{split($2,b,"-"); print $1,b[1],b[2],$3}' OFS='\t' \
+            > $output_dir_SEACR/$output_SEACR_focused
+    done
+) 2>$log_dir/$log_file_SEACR
+
+##########
+# MACS3, MACS3
+# whole: peaks.xls; remove top 23 and 24 lines for wo-IgG_peaks.xls and w-IgG_peaks.txl; take column 1, 2, 3, 10
+# focused: summits.bed; take column 1, 2, 3, and 4
+##########
+# Make peak bed file output directories
+    mkdir -p /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/peak-bed_MACS3
+
+# Set current working directory
+    cd /project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/MACS3
+
+# for-loop to create peak bed files
+(
+    for f in *.hg38.canonical.clean.fragments_wo-IgG.txt_peaks.xls; do
+
+        # Extract base filename without extension
+        base=${f%%.hg38.canonical.clean.fragments_wo-IgG.txt_peaks.xls}
+
+        # Set files and directories for MACS3
+        input_dir_MACS3=/project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/MACS3
+        input_wo_IgG_whole="${base}.hg38.canonical.clean.fragments_wo-IgG.txt_peaks.xls"
+        input_w_IgG_whole="${base}.hg38.canonical.clean.fragments_w-IgG.txt_peaks.xls"
+        input_wo_IgG_focused="${base}.hg38.canonical.clean.fragments_wo-IgG.txt_summits.bed"
+        input_w_IgG_focused="${base}.hg38.canonical.clean.fragments_w-IgG.txt_summits.bed"
+
+        output_dir_MACS3=/project/voightlab_01/lorenzk/CEET/Amatullah/CutRun/Easy-Shells_CUTnRUN/D3PIC/peak-bed_MACS3
+        output_wo_IgG_whole="${base}.hg38.canonical.clean.fragments_wo-IgG_whole.bed"
+        output_w_IgG_whole="${base}.hg38.canonical.clean.fragments_w-IgG_whole.bed"
+        output_wo_IgG_focused="${base}.hg38.canonical.clean.fragments_wo-IgG_focused.bed"
+        output_w_IgG_focused="${base}.hg38.canonical.clean.fragments_w-IgG_focused.bed"
+
+        # Generate MACS3 peak bed files
+            # for intervene and correlation analysis
+            tail -n +24 $input_dir_MACS3/$input_wo_IgG_whole | \
+            awk '{print $1,$2,$3,$10}' OFS='\t' \
+            > $output_dir_MACS3/$output_wo_IgG_whole
+
+            tail -n +25 $input_dir_MACS3/$input_w_IgG_whole | \
+            awk '{print $1,$2,$3,$10}' OFS='\t' \
+            > $output_dir_MACS3/$output_w_IgG_whole
+
+            # for heatmap and average plot
+            awk '{print $1,$2,$3,$4}' OFS='\t' \
+                $input_dir_MACS3/$input_wo_IgG_focused \
+            > $output_dir_MACS3/$output_wo_IgG_focused
+
+            awk '{print $1,$2,$3,$4}' OFS='\t' \
+                $input_dir_MACS3/$input_w_IgG_focused \
+            > $output_dir_MACS3/$output_w_IgG_focused
+    done
+) 2>$log_dir/$log_file_MACS
