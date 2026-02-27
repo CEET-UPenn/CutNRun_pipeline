@@ -16,6 +16,8 @@ Briefly, fastq files were QC’d using FastQC v0.12.1, then trimmed using Trim-G
 Example scripts for a single experiment (control + pulldowns) is found in scripts_D3PIC
 
 Bigwig files were visualized using pyGenomeTracks v3.8. (see read_pileup_plot_code)
+
 Genes correspond to gencode v34. 
+
 We used MACS3 output only as SEACR calling was inconclusive for the vast majority of experiments. 
 
